@@ -1,5 +1,7 @@
 // import express
 const express = require('express');
+// import bcrypt
+const bcrypt = require('bcrypt-nodejs');
 
 // create our express app
 const app = express();
@@ -27,6 +29,14 @@ const database = {
       joined: new Date(),
     },
   ],
+  // This is how we could handle signin
+  login: [
+    {
+      id: '987',
+      has: '',
+      email: 'john@gmail.com',
+    },
+  ],
 }; // our database is an object containing the value users which is an array of objects containing all our user data
 
 app.get('/', (req, res) => {
@@ -49,6 +59,10 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   // destructure the request body to give us our user variables
   const { email, name, password } = req.body;
+  // Store hash in your password DB.
+  bcrypt.hash(password, null, null, function (err, hash) {
+    console.log(hash);
+  });
   // we then use our variables to create a new user
   database.users.push({
     id: '125',
@@ -107,6 +121,20 @@ app.put('/image', (req, res) => {
   if (!found) {
     res.status(404).json('not found');
   }
+});
+
+// - bcrypt
+// Hash a password
+bcrypt.hash('bacon', null, null, function (err, hash) {
+  // Store hash in your password DB.
+});
+
+// Load hash from your password DB. - compare
+bcrypt.compare('bacon', hash, function (err, res) {
+  // res == true
+});
+bcrypt.compare('veggies', hash, function (err, res) {
+  // res = false
 });
 
 // - add a port for our app to listen to (3000), with a console log message to show it is working (even though nodemon kind of does this)
