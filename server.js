@@ -2,12 +2,16 @@
 const express = require('express');
 // import bcrypt
 const bcrypt = require('bcrypt-nodejs');
+// import cors
+const cors = require('cors');
 
 // create our express app
 const app = express();
 
 // we use this below instead of body parser and will need to add this below our express app in most cases
 app.use(express.json());
+// enable CORS
+app.use(cors());
 
 // - Create a mock database because we haven't learned how to create a proper one yet
 const database = {
@@ -45,6 +49,21 @@ app.get('/', (req, res) => {
 
 // - Signin route
 app.post('/signin', (req, res) => {
+  // Load hash from your password DB. - compare - function takes our password and the hash
+  bcrypt.compare(
+    'apples',
+    '$2a$10$jCElfQWDAR1K10pbFeGnw.rjNjpV68PmfdB5dPuvxfP6fOMWzXTCe',
+    function (err, res) {
+      console.log('first guess', res); // res == true
+    }
+  );
+  bcrypt.compare(
+    'veggies',
+    '$2a$10$jCElfQWDAR1K10pbFeGnw.rjNjpV68PmfdB5dPuvxfP6fOMWzXTCe',
+    function (err, res) {
+      console.log('second guess', res); // res = false
+    }
+  );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -59,9 +78,9 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   // destructure the request body to give us our user variables
   const { email, name, password } = req.body;
-  // Store hash in your password DB.
+  // Add our hashing here as this is where we will give our password, bcrypt will hash the password and return this hash - a hash function takes a string and jumbles it up
   bcrypt.hash(password, null, null, function (err, hash) {
-    console.log(hash);
+    console.log(hash); // logs the hash to the console
   });
   // we then use our variables to create a new user
   database.users.push({
@@ -124,18 +143,6 @@ app.put('/image', (req, res) => {
 });
 
 // - bcrypt
-// Hash a password
-bcrypt.hash('bacon', null, null, function (err, hash) {
-  // Store hash in your password DB.
-});
-
-// Load hash from your password DB. - compare
-bcrypt.compare('bacon', hash, function (err, res) {
-  // res == true
-});
-bcrypt.compare('veggies', hash, function (err, res) {
-  // res = false
-});
 
 // - add a port for our app to listen to (3000), with a console log message to show it is working (even though nodemon kind of does this)
 app.listen(3000, () => {
